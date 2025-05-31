@@ -1,0 +1,13 @@
+const express = require('express');
+const app = express();
+const userRoutes = require('./routes/users');
+
+app.use(express.json());
+
+app.use(require('./middleware/logger'));
+
+app.use('/users', userRoutes);
+
+app.listen(3000, () => {
+	console.log('Server is running at http://localhost:3000');
+});
