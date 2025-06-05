@@ -77,6 +77,12 @@ DB_PASSWORD=your_postgres_password
 DB_NAME=your_database_name
 ```
 
+You should replace yourSuperSecretKey with a secure, randomly generated string.
+Generate it using:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
 ---
 
 ### 4. Start PostgreSQL via Docker
@@ -89,6 +95,10 @@ docker-compose up -d
 
 This starts PostgreSQL container with volume persistence.
 
+```bash
+docker cp init.sql my_postgres:/init.sql
+```
+
 ---
 
 ### 5. Create PostgreSQL Table
@@ -96,19 +106,9 @@ This starts PostgreSQL container with volume persistence.
 Run the following to execute the SQL file and create the `users` table:
 
 ```bash
-psql -h localhost -U your_postgres_user -d your_database_name -f init.sql
+docker exec -it my_postgres psql -U myuser -d postgres -f /init.sql
 ```
-
-> If you're using Docker's default user/pass and database, it may be:
-```bash
-psql -h localhost -U postgres -d postgres -f init.sql
-```
-
-If you're inside the container:
-
-```bash
-docker exec -it my_postgres psql -U postgres -d postgres -f /init.sql
-```
+replace myuser with your PostgreSQL username from .evn 
 
 ---
 

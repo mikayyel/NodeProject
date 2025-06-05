@@ -14,6 +14,16 @@ const swaggerDefinition = {
       description: 'Development server',
     },
   ],
+  tags: [
+    {
+      name: 'Users',
+      description: 'Operations related to user management',
+    },
+    {
+      name: 'Auth',
+      description: 'Operations related to authentication (register, login)',
+    },
+  ]
 };
 
 const options = {

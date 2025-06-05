@@ -5,6 +5,7 @@ const pool = require('./db');
 const { swaggerUi, swaggerSpec } = require('./swaggerConfig');
 
 const userRoutes = require('./routes/users');
+const authRoutes = require('./routes/auth');
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,6 +19,7 @@ pool.query('SELECT NOW()')
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/users', userRoutes);
+app.use('/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);

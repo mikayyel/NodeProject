@@ -12,6 +12,7 @@ const {
 const getUsers = async(req, res) => { 
 	try{
 		const users = await getAllUsers();
+		console.log('Loaded users:', users);
 		return res.status(200).json(users);
 	}catch(error) {
 		console.error(`Error fetching users ${error}`);

@@ -19,6 +19,7 @@ const {
  * /users:
  *   get:
  *     summary: Get all users
+ *     tags: [Users]
  *     responses:
  *       200:
  *         description: List of users
@@ -32,6 +33,7 @@ userRoutes.get('/', getUsers);
  * /users/{username}:
  *   get:
  *     summary: Get a user by username
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: username
@@ -53,6 +55,7 @@ userRoutes.get('/:username', getUser);
  * /users:
  *   post:
  *     summary: Create a new user
+ *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
@@ -86,6 +89,7 @@ userRoutes.post('/', createUserValidation, createUser);
  * /users/{username}:
  *   put:
  *     summary: Fully update a user
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: username
@@ -127,6 +131,7 @@ userRoutes.put('/:username', updateUserValidation, updateUser);
  * /users/{username}:
  *   patch:
  *     summary: Partially update a user
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: username
@@ -167,6 +172,7 @@ userRoutes.patch('/:username', patchUserValidation, patchUser);
  * /users/{username}:
  *   delete:
  *     summary: Delete a user
+ *     tags: [Users]
  *     parameters:
  *       - in: path
  *         name: username
