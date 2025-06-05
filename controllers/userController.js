@@ -1,6 +1,6 @@
 const { validationResult } = require('express-validator');
 const {
-	getUsersFromFile,
+	getAllUsers,
 	getUserByUsername,
 	saveUser,
 	updateUserByUsername,
@@ -11,7 +11,7 @@ const {
 // Get Users
 const getUsers = async(req, res) => { 
 	try{
-		const users = await getUsersFromFile();
+		const users = await getAllUsers();
 		return res.status(200).json(users);
 	}catch(error) {
 		console.error(`Error fetching users ${error}`);
@@ -48,12 +48,12 @@ const createUser = async(req, res) => {
 		const isExist = await getUserByUsername(username);
 
 		if(isExist) {
-			return res.status(400).json({ error: 'User already exist' });
+			return res.status(409).json({ error: 'User already exist' });
 		};
 
 		await saveUser(req.body);
 
-		return res.status(200).json({ message: 'User created successfully!' });
+		return res.status(201).json({ message: 'User created successfully!' });
 	}catch(error) {
 		console.error(`Error creating user: ${error.message}`);
 		return res.status(500).json({ error: 'Failed to create user' });
@@ -72,7 +72,7 @@ const updateUser = async(req, res) => {
 		const currentUsername = req.params.username;
 		const newUsername = req.body.username;
 
-		const users = await getUsersFromFile();
+		const users = await getAllUsers();
 
 		const existingUser = users.find(user => user.username === currentUsername);
 		if (!existingUser) {
@@ -82,7 +82,7 @@ const updateUser = async(req, res) => {
 		if (newUsername && newUsername !== currentUsername) {
 			const duplicateUser = users.find(user => user.username === newUsername);
 			if (duplicateUser) {
-				return res.status(400).json({ error: 'Username already exists' });
+				return res.status(409).json({ error: 'Username already exists' });
 			};
 		};
 
@@ -106,14 +106,14 @@ const patchUser = async(req, res) => {
 		const isExist = await getUserByUsername(req.params.username);
 
 		if(!isExist) {
-			return res.status(400).json({ error: 'User not found' });
+			return res.status(404).json({ error: 'User not found' });
 		};
 
 		if(req.body.username) {
 			const isUsernameExist = await getUserByUsername(req.body.username);
 
 			if(isUsernameExist) {
-				return res.status(400).json({ error: 'Username already exist' });
+				return res.status(409).json({ error: 'Username already exist' });
 			};
 		};
 
