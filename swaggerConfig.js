@@ -23,6 +23,20 @@ const swaggerDefinition = {
       name: 'Auth',
       description: 'Operations related to authentication (register, login)',
     },
+  ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+  },
+  security: [
+    {
+      bearerAuth: [],
+    },
   ]
 };
 

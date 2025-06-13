@@ -135,6 +135,34 @@ To view and test the API via Swagger UI.
 
 ---
 
+### 8. Authorization
+
+Getting a Token (Login)
+
+	1. Use the /auth/login endpoint to log in:
+
+	Request:
+
+		POST /auth/login
+		Content-Type: application/json
+
+		{
+			"username": "your_username",
+			"password": "your_password"
+		}
+
+	Response: 
+		{
+		"message": "Login successful",
+		"token": "your_jwt_token_here"
+		}
+	
+	2. Copy the token from the response.
+
+	In Swagger UI:
+	•	Click the “Authorize” button at the top
+	•	Paste the token
+
 ## ⚠️ Important Notes
 
 - Ensure PostgreSQL table is created before testing the API.

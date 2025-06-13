@@ -1,7 +1,8 @@
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const pool = require('../db');
+const { AppDataSource } = require('../data-source');
+const userRepository = AppDataSource.getRepository('User');
 
 const registerUser = async(req, res) => {
 	const errors = validationResult(req);
@@ -10,21 +11,22 @@ const registerUser = async(req, res) => {
 	const { firstname, lastname, username, password } = req.body;
 
 	try{
-		const existingUser = await pool.query(
-			'SELECT * FROM users WHERE username = $1',
-			[username]
-		);
+		const existingUser = await userRepository.findOne({where: {username}});
 
-		if(existingUser.rows.length > 0) {
+		if(existingUser) {
 			return res.status(409).json({ error: 'Username already exist' });
 		};
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		await pool.query(
-			'INSERT INTO users (firstname, lastname, username, password) VALUES ($1, $2, $3, $4)',
-			[firstname, lastname, username, hashedPassword]
-		);
+		const newUser = userRepository.create({
+			firstname, 
+			lastname, 
+			username, 
+			password: hashedPassword
+		});
+
+		await userRepository.save(newUser);
 
 		return res.status(201).json({ message: 'User registered successfully' });
 	}catch(error) {
@@ -41,14 +43,11 @@ const logInUser = async(req, res) => {
 	const { username, password } = req.body;
 
 	try{
-		const userResult = await pool.query(
-			'SELECT * FROM users WHERE username = $1',
-			[username]
-		);
+		const userResult = await userRepository.findOne({where: {username}});
 
-		if(userResult.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+		if(!userResult) return res.status(401).json({ error: 'Invalid credentials' });
 
-		const user = userResult.rows[0];
+		const user = userResult;
 
 		const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });

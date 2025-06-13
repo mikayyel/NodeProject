@@ -1,5 +1,6 @@
 const express = require('express');
 const userRoutes = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 const {
   getUsers, 
   getUser, 
@@ -19,6 +20,8 @@ const {
  * /users:
  *   get:
  *     summary: Get all users
+ *     security: 
+ *       -bearerAuth: []
  *     tags: [Users]
  *     responses:
  *       200:
@@ -26,7 +29,7 @@ const {
  *       500:
  *         description: Failed to load users
  */
-userRoutes.get('/', getUsers);
+userRoutes.get('/', authMiddleware, getUsers);
 
 /**
  * @swagger

@@ -1,18 +1,12 @@
+const { AppDataSource } = require('../data-source');
 const { validationResult } = require('express-validator');
-const {
-	getAllUsers,
-	getUserByUsername,
-	saveUser,
-	updateUserByUsername,
-	patchUserByUsername,
-	deleteUserByUsername
-} = require('../models/userModel');
+
+const userRepository = AppDataSource.getRepository('User');
 
 // Get Users
 const getUsers = async(req, res) => { 
 	try{
-		const users = await getAllUsers();
-		console.log('Loaded users:', users);
+		const users = await userRepository.find();
 		return res.status(200).json(users);
 	}catch(error) {
 		console.error(`Error fetching users ${error}`);
@@ -23,7 +17,7 @@ const getUsers = async(req, res) => {
 // Get User
 const getUser = async(req, res) => {
 	try{
-		const user = await getUserByUsername(req.params.username);
+		const user = await userRepository.findOne({ where: {username: req.body.username} });
 
 		if (!user) {
 			return res.status(404).json({ error: 'User not found' });
@@ -38,7 +32,7 @@ const getUser = async(req, res) => {
 
 // Create user
 const createUser = async(req, res) => {
-	const { username } = req.body;
+	const { firstname, lastname, username, password } = req.body;
 	const errors = validationResult(req);
 
 	if(!errors.isEmpty()) {
@@ -46,13 +40,20 @@ const createUser = async(req, res) => {
 	};
 
 	try{
-		const isExist = await getUserByUsername(username);
+		const isExist = await userRepository.findOne({ where: {username} });
 
 		if(isExist) {
 			return res.status(409).json({ error: 'User already exist' });
 		};
 
-		await saveUser(req.body);
+		const newUser = userRepository.create({
+			firstname, 
+			lastname,
+			username, 
+			password
+		});
+
+		await userRepository.save(newUser);
 
 		return res.status(201).json({ message: 'User created successfully!' });
 	}catch(error) {
@@ -73,21 +74,19 @@ const updateUser = async(req, res) => {
 		const currentUsername = req.params.username;
 		const newUsername = req.body.username;
 
-		const users = await getAllUsers();
-
-		const existingUser = users.find(user => user.username === currentUsername);
+		const existingUser = await userRepository.findOne({ where: { username: currentUsername } });
 		if (!existingUser) {
 			return res.status(404).json({ error: 'User not found' });
 		};
 
 		if (newUsername && newUsername !== currentUsername) {
-			const duplicateUser = users.find(user => user.username === newUsername);
+			const duplicateUser = await userRepository.findOne({ where: { username: newUsername } });
 			if (duplicateUser) {
 				return res.status(409).json({ error: 'Username already exists' });
 			};
 		};
 
-		await updateUserByUsername(currentUsername, req.body);
+		await userRepository.update({username: currentUsername}, req.body);
 		return res.status(200).json({ message: 'User updated successfully!' });
 	}catch(error) {
 		console.error(`Error updating user: ${error.message}`);
@@ -104,21 +103,21 @@ const patchUser = async(req, res) => {
 	};
 
 	try{
-		const isExist = await getUserByUsername(req.params.username);
+		const isExist = await userRepository.findOne({ where: {username: req.params.username} });
 
 		if(!isExist) {
 			return res.status(404).json({ error: 'User not found' });
 		};
 
 		if(req.body.username) {
-			const isUsernameExist = await getUserByUsername(req.body.username);
+			const isUsernameExist = await userRepository.findOne({ where: {username: req.body.username} });
 
 			if(isUsernameExist) {
 				return res.status(409).json({ error: 'Username already exist' });
 			};
 		};
 
-		await patchUserByUsername(req.params.username, req.body);
+		await userRepository.update({username: req.params.username}, req.body);
 		return res.status(200).json({ message: 'User updated successfully!' });
 	}catch(error) {
 		console.error(`Error updating user: ${error.message}`);
@@ -128,13 +127,13 @@ const patchUser = async(req, res) => {
 
 const deleteUser = async(req, res) => {
 	try{
-		const isExist = await getUserByUsername(req.params.username);
+		const isExist = await userRepository.findOne({ where: {username:req.params.username} });
 
 		if(!isExist) {
 			return res.status(404).json({ error: 'User not found' });
 		};
 
-		deleteUserByUsername(req.params.username);
+		await userRepository.delete({username: req.params.username});
 
 		return res.status(200).json({ message: 'User deleted successfully' });
 	} catch(error) {
